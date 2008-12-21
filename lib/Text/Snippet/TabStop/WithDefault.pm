@@ -12,7 +12,7 @@ has default => (
 	required => 1,
 );
 has '+replacement' => (
-	default => sub { $_->default }
+	default => sub { shift->default }
 );
 
 
@@ -23,8 +23,8 @@ __PACKAGE__->meta->make_immutable;
 sub parse {
 	my $class = shift;
 	my $src = shift;
-	if($src =~ m/\$\{(\d+):(.+)\}/){
-		return $class->new( index => $1, src => $src, default => $2 );
+	if($src =~ m/\$\{(\d+):(.*)\}/){
+		return $class->new( index => $1, src => $src, default => $2 || '' );
 	}
 	return;
 }

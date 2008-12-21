@@ -6,7 +6,7 @@ use Carp qw(croak);
 use Moose::Role;
 use MooseX::Types::Moose qw(Str Int);
 
-requires qw(parse);
+requires( 'parse' );
 has src => (
 	is => 'ro',
 	isa => Str,
@@ -25,9 +25,9 @@ has replacement => (
 	default => '',
 );
 has parent => (
-	is => 'ro',
-	isa => 'Text::Snippet::TabStop',
-	required => 0,
+	is        => 'rw',
+	does      => 'Text::Snippet::TabStop',
+	required  => 0,
 	predicate => 'has_parent',
 );
 
@@ -37,6 +37,10 @@ sub to_string {
 	my $self = shift;
 	return $self->parent->to_string if($self->has_parent);
 	return $self->replacement;
+}
+
+sub is_terminal {
+	return shift->index == 0;
 }
 
 1;

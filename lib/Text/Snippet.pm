@@ -4,6 +4,8 @@ use warnings;
 use strict;
 use Text::Balanced qw(extract_bracketed extract_multiple);
 use Text::Snippet::TabStop::Parser;
+use Text::Snippet::TabStop::Cursor;
+use Scalar::Util qw(blessed);
 
 =head1 NAME
 
@@ -117,27 +119,27 @@ use Moose::Util::TypeConstraints;
 use MooseX::Types::Moose qw(ArrayRef Str);
 use overload '""' => \&to_string;
 
-my $list_of_stringables = subtype ArrayRef, where {
-	scalar( grep { !ref($_) || overload::Method( $_, q("") ) } @$_ ) == @$;
-};
 has chunks => (
-	is => 'ro',
-	isa => $list_of_stringables,
-	required => 1,
+	is         => 'ro',
+	isa        => ArrayRef,
+	required   => 1,
+	default    => sub { [] },
 	auto_deref => 1,
-	coerce => 1,
+	coerce     => 1,
 );
 
 has src => (
-	is => 'rw',
-	isa => Str,
+	is       => 'rw',
+	isa      => Str,
 	required => 1,
 );
 
 has tab_stops => (
-	is => 'rw',
-	isa => ArrayRef,
-	required => 1,
+	is         => 'rw',
+	isa        => ArrayRef,
+	required   => 1,
+	auto_deref => 1,
+	default    => sub { [] },
 );
 
 no Moose;
@@ -152,7 +154,6 @@ sub parse {
 			{ Plain  => qr/[^\$]+/ },
 	], undef, 1); 
 
-	my $pos = 0;
 	my %tab_stop_cache;
 	my @chunks;
 	foreach my $c (@raw) {
@@ -163,7 +164,7 @@ sub parse {
 			# the leading $ gets stripped on these by extract_bracketed...
 			$$c = '$' . $$c if(ref($c) eq 'Curly');
 
-			my $t = Text::Snippet::TabStop->parse( $$c );
+			my $t = Text::Snippet::TabStop::Parser->parse( $$c );
 
 			if ( exists( $tab_stop_cache{ $t->index } ) ) {
 				$t->parent($tab_stop_cache{ $t->index });
@@ -174,7 +175,7 @@ sub parse {
 		}
 	}
 
-	my @tab_stops = map { $tab_stop_cache{$_} } sort keys %tab_stop_cache;
+	my @tab_stops = map { $tab_stop_cache{$_} } sort { $a <=> $b } keys %tab_stop_cache;
 
 	if ( exists( $tab_stop_cache{'0'} ) ) {
 		# put the zero-th tab stop on the end of the array
@@ -192,7 +193,6 @@ sub parse {
 		tab_stops => \@tab_stops,
 	);
 	return $class->new(%params);
-
 }
 
 =head1 INSTANCE METHODS
@@ -207,9 +207,13 @@ including it inside double quotes will have the same effect.
 
 sub to_string {
 	my $self = shift;
-	return join('', $self->chunks);
+	return join( '', map { blessed($_) && $_->can('to_string') ? $_->to_string : $_ } $self->chunks );
 }
 
+sub cursor {
+	my $self = shift;
+	return Text::Snippet::TabStop::Cursor->new( snippet => $self );
+}
 
 =head1 AUTHOR
 

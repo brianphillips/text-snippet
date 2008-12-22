@@ -52,20 +52,47 @@ sub current {
 	return;
 }
 
+sub _is_current {
+	my $self = shift;
+	my $current = $self->current;
+	my $tab_stop = shift;
+	return blessed($tab_stop) && (refaddr($tab_stop) == refaddr($current) || ($tab_stop->has_parent && refaddr($tab_stop->parent) == refaddr($current)));
+}
+
 sub current_regions {
 	my $self    = shift;
-	my $current = $self->current;
-	return if ( !defined $current );
+	return if ( !defined $self->current );
 
 	my $pos = 0;
 	my @regions;
 	foreach my $c ( $self->snippet->chunks ) {
-		if ( blessed($c) && ( refaddr($c) == refaddr($current) || ( $c->has_parent && $c->parent == $current ) ) ) {
-			push( @regions, [ $pos, length($c) ] );
+		if ( $self->_is_current( $c ) ){
+			push( @regions, [ $pos, length($c->to_string) ] );
 		}
-		$pos += length($c);
+		$pos += length(blessed($c) ? $c->to_string : "$c");
 	}
 	return @regions;
+}
+
+sub current_position {
+	my $self = shift;
+	my $current = $self->current;
+	my ($x, $y) = (0,0);
+	return [$x,$y] if ! defined $current;
+	
+	foreach my $c($self->snippet->chunks ){
+		last if($self->_is_current($c));
+		my $text = blessed($c) && $c->can('to_string') ? $c->to_string : "$c";
+		foreach my $char(split(/(\n)/,$text)){
+			if($char eq "\n"){
+				$y += length($char);
+				$x = 0;
+			} else {
+				$x += length($char);
+			}
+		}
+	}
+	return [$x,$y];
 }
 
 1;

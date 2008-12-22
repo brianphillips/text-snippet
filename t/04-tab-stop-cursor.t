@@ -6,7 +6,7 @@ my @tests = map {
 	[ map { chomp; $_ } split( /\n====\n/, $_ ) ]
 } split( /\n--------\n/, join( '', grep {!/^#/} <DATA> ) );
 
-plan(tests => @tests + 8);
+plan(tests => @tests + 16);
 use_ok('Text::Snippet::TabStop::Cursor');
 use_ok('Text::Snippet');
 
@@ -34,6 +34,27 @@ is_deeply( [ $c->current_regions ], [ [ 21, 5 ] ], 'third tab stop current regio
 $c->prev->replace('Turtles');
 $c->next;
 is_deeply( [ $c->current_regions ], [ [ 22, 5 ] ], 'current regions shift with subsequent edits');
+
+$s = Text::Snippet->parse("1. \$1\n2. \$1\$2\n3. \$1\$2\$3");
+$c = $s->cursor;
+is_deeply($c->current_position, [0,0], 'starts at 0,0');
+$c->next;
+is_deeply($c->current_position, [3,0], 'first tab-stop at 3,0');
+$c->next;
+is_deeply($c->current_position, [3,1], 'second tab-stop at 3,1');
+$c->next;
+is_deeply($c->current_position, [3,2], 'third tab-stop at 3,2');
+$c->prev->replace('Foo');
+$c->next;
+is_deeply($c->current_position, [6,2], 'after modifying $2, third tab-stop at 6,2');
+$c->prev; $c->prev->replace('Blah');
+$c->next; $c->next;
+is_deeply($c->current_position, [10,2], 'after modifying $1 and $2, third tab-stop at 10,2');
+$c->prev;
+is_deeply($c->current_position, [7,1], 'after modifying $1 and $2, second tab-stop at 7,1');
+$c->prev;
+is_deeply($c->current_position, [3,0], 'after modifying $1, first tab-stop at 3,0');
+
 
 __DATA__
 Thing ${1} and Thing $2

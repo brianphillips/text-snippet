@@ -10,7 +10,7 @@ my @tests = map {
 plan(tests => @tests + 2);
 use_ok('Text::Snippet');
 
-my $s = Text::Snippet->parse('${1/(.+)/\u$1}');
+my $s = Text::Snippet->parse('${1/(.+)/\u$1/}');
 isa_ok($s->tab_stops->[0], 'Text::Snippet::TabStop::WithTransformer');
 
 foreach my $t(@tests){
@@ -23,10 +23,24 @@ foreach my $t(@tests){
 }
 
 __DATA__
-I $1 it, I ${1/(.+)/\u$1} it!
+I $1 it, I ${1/(.+)/\U$1\E/} it!
 ====
 love
 ====
 I love it, I LOVE it!
 ====
 mirrored uppercased
+--------
+I $1 it, I ${1/(.)(.)/\u$1$2/} it!
+====
+love
+====
+I love it, I LoVe it!
+--------
+I $1 it, I ${1/(.)/\{$1/} it!
+====
+love
+====
+I love it, I {l{o{v{e it!
+====
+bracketed

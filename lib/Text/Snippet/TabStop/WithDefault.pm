@@ -2,23 +2,20 @@ package Text::Snippet::TabStop::WithDefault;
 
 use strict;
 use warnings;
-use Moose;
-use MooseX::Types::Moose qw(Str);
+use base qw(Text::Snippet::TabStop);
+use Carp qw(croak);
+use Class::XSAccessor getters => { default => 'default' };
 
-with qw(Text::Snippet::TabStop);
-has default => (
-	is => 'rw',
-	isa => Str,
-	required => 1,
-);
-has '+replacement' => (
-	default => sub { shift->default }
-);
-
-
-no Moose;
-
-__PACKAGE__->meta->make_immutable;
+sub new {
+	my $class = shift;
+	my %args = (default=>'', @_);
+	return bless \%args, $class;
+}
+sub replacement {
+	my $self = shift;
+	my $replacement = $self->SUPER::replacement;
+	return defined $replacement ? $replacement : $self->default;
+}
 
 sub parse {
 	my $class = shift;

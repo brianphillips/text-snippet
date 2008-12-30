@@ -15,7 +15,7 @@ isa_ok($s->tab_stops->[0], 'Text::Snippet::TabStop::WithTransformer');
 
 foreach my $t(@tests){
 	my $s = Text::Snippet->parse($t->[0]);
-	my @ts = $s->tab_stops;
+	my @ts = @{ $s->tab_stops };
 	foreach my $r( split(/\|/, $t->[1]) ){
 		shift(@ts)->replace($r) unless $r eq '-';
 	}

@@ -3,35 +3,26 @@ package Text::Snippet::TabStop;
 use strict;
 use warnings;
 use Carp qw(croak);
-use Moose::Role;
-use MooseX::Types::Moose qw(Str Int);
+use overload '""' => sub { shift->to_string };
 
-requires( 'parse' );
-has src => (
-	is => 'ro',
-	isa => Str,
-	required => 1,
-);
-has index => (
-	is => 'ro',
-	isa => Int,
-	required => 1,
-);
-has replacement => (
-	is => 'rw',
-	isa => Str,
-	required => 0,
-	writer => 'replace',
-	default => '',
-);
-has parent => (
-	is        => 'rw',
-	does      => 'Text::Snippet::TabStop',
-	required  => 0,
-	predicate => 'has_parent',
-);
+use Class::XSAccessor
+		getters    => { src        => 'src', index => 'index', chunks => 'chunks', replacement => 'replacement' },
+		setters    => { replace    => 'replacement' },
+		accessors  => { parent     => 'parent' },
+		predicates => { has_parent => 'parent' };
 
-no Moose::Role;
+sub new {
+	my $class = shift;
+	my %args = @_;
+	for my $k(qw(src index)){
+		croak "$k is required" unless defined $args{$k};
+	}
+	return bless \%args, $class;
+}
+
+sub parse {
+	croak "must be implemented in sub class";
+}
 
 sub to_string {
 	my $self = shift;

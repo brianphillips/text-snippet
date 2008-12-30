@@ -6,6 +6,7 @@ use Text::Balanced qw(extract_bracketed extract_multiple);
 use Text::Snippet::TabStop::Parser;
 use Text::Snippet::TabStop::Cursor;
 use Scalar::Util qw(blessed);
+use Carp qw(croak);
 
 =head1 NAME
 
@@ -22,7 +23,7 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-This module provides TextMate-like snippet functionality in an
+This module provides TextMate-like snippet functionality via an
 editor-agnostic API.  The snippet syntax is modeled after the
 snippets provided by TextMate.
 
@@ -112,40 +113,23 @@ If the user leaves all the defaults, the output of this snippet would be:
 
 =head2 parse
 
+This is the main entry point into this module's functionality.  It takes
+a single argument, the content of the snippet that conforms to the syntax
+described above.
+
 =cut
 
-use Moose;
-use Moose::Util::TypeConstraints;
-use MooseX::Types::Moose qw(ArrayRef Str);
-use overload '""' => \&to_string;
-
-has chunks => (
-	is         => 'ro',
-	isa        => ArrayRef,
-	required   => 1,
-	default    => sub { [] },
-	auto_deref => 1,
-	coerce     => 1,
-);
-
-has src => (
-	is       => 'rw',
-	isa      => Str,
-	required => 1,
-);
-
-has tab_stops => (
-	is         => 'rw',
-	isa        => ArrayRef,
-	required   => 1,
-	auto_deref => 1,
-	default    => sub { [] },
-);
-
-no Moose;
-
-__PACKAGE__->meta->make_immutable;
-
+sub _new {
+	my $class = shift;
+	my $args = ref($_[0]) ? shift : {@_};
+	my $self = {
+		chunks    => [],
+		tab_stops => [],
+		%$args
+	};
+	croak "no src attribute specified" unless defined($self->{src});
+	return bless $self, $class;
+}
 sub parse {
 	my $class  = shift;
 	my $source = shift;
@@ -188,12 +172,13 @@ sub parse {
 	}
 
 	my %params = (
-		src          => $source,
-		chunks       => \@chunks,
+		src       => $source,
+		chunks    => \@chunks,
 		tab_stops => \@tab_stops,
 	);
-	return $class->new(%params);
+	return $class->_new(%params);
 }
+
 
 =head1 INSTANCE METHODS
 
@@ -205,10 +190,40 @@ including it inside double quotes will have the same effect.
 
 =cut
 
+use overload '""' => \&to_string;
+
 sub to_string {
 	my $self = shift;
-	return join( '', map { blessed($_) && $_->can('to_string') ? $_->to_string : $_ } $self->chunks );
+	return join( '', map { blessed($_) && $_->can('to_string') ? $_->to_string || '' : $_ } @{ $self->chunks } );
 }
+
+use Class::XSAccessor getters => { src => 'src', tab_stops => 'tab_stops', chunks => 'chunks' };
+
+=head2 chunks
+
+Returns an ArrayRef that makes up the entire content of the
+snippet. Depending on the source of the snippet, some of these items
+may be literal scalars (representing static content) and others may
+be L<Text::Snippet::TabStop> objects that represent the user-enterable
+portions of the snippet.
+
+=head2 src
+
+This returns the original source as it was passed to "parse"
+
+=head2 tab_stops
+
+This returns an ArrayRef of L<Text::Snippet::TabStop> objects that
+represent the user-enterable portions of the snippet.  These are ordered
+by the tab stop's index with the zero-th index coming last.
+
+=head2 cursor
+
+This method creates a L<Text::Snippet::TabStop::Cursor> object for
+you which allows the caller to traverse a series of tab stops in a
+convenient fashion.
+
+=cut
 
 sub cursor {
 	my $self = shift;
@@ -255,9 +270,7 @@ L<http://search.cpan.org/dist/Text-Snippet/>
 
 =back
 
-
 =head1 ACKNOWLEDGEMENTS
-
 
 =head1 COPYRIGHT & LICENSE
 

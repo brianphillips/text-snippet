@@ -12,11 +12,11 @@ use_ok('Text::Snippet');
 
 foreach my $t(@tests){
 	my $s = Text::Snippet->parse($t->[0]);
-	my @ts = $s->tab_stops;
+	my @ts = @{ $s->tab_stops };
 	foreach my $r( split(/\|/, $t->[1]) ){
 		shift(@ts)->replace($r) unless $r eq '-';
 	}
-	is($s, $t->[2], $t->[3] || "parsed $t->[0] correctly");
+	is($s->to_string, $t->[2], $t->[3] || "parsed $t->[0] correctly");
 }
 
 __DATA__

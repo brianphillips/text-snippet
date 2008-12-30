@@ -2,13 +2,8 @@ package Text::Snippet::TabStop::Basic;
 
 use strict;
 use warnings;
-use Moose;
 
-with qw(Text::Snippet::TabStop);
-
-no Moose;
-
-__PACKAGE__->meta->make_immutable;
+use base qw(Text::Snippet::TabStop);
 
 sub parse {
 	my $class = shift;

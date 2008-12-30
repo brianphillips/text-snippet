@@ -17,7 +17,7 @@ foreach my $t(@tests){
 	while(@values && $c->has_next){
 		$c->next->replace(shift(@values));
 	}
-	is($s, $t->[2], "parsed $t->[0] correctly");
+	is($s->to_string, $t->[2], "parsed $t->[0] correctly");
 }
 
 my $s = Text::Snippet->parse('$1 and $2 and $3! Oh my!');

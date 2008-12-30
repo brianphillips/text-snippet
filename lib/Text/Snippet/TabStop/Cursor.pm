@@ -2,28 +2,21 @@ package Text::Snippet::TabStop::Cursor;
 
 use strict;
 use warnings;
-use Moose;
+use Class::XSAccessor getters => {snippet => 'snippet'};
 use Scalar::Util qw(blessed refaddr);
+use Carp qw(croak);
 
-has snippet => (
-	is       => 'ro',
-	isa      => 'Text::Snippet',
-	required => 1,
-);
-
-no Moose;
-
-__PACKAGE__->meta->make_immutable;
-
-sub BUILD {
-	my $self = shift;
-	$self->{i} = -1;
+sub new {
+	my $class = shift;
+	my %args = (i => -1, @_);
+	croak "snippet must be ISA Text::Snippet" unless blessed $args{snippet} eq 'Text::Snippet';
+	return bless \%args, $class;
 }
 
 sub has_prev {
 	my $self  = shift;
-	my @stops = $self->snippet->tab_stops;
-	return @stops && $self->{i} > 0;
+	my $stops = $self->snippet->tab_stops;
+	return @$stops && $self->{i} > 0;
 }
 
 sub prev {
@@ -33,8 +26,8 @@ sub prev {
 
 sub has_next {
 	my $self  = shift;
-	my @stops = $self->snippet->tab_stops;
-	return @stops && $self->{i} < $#stops;
+	my $stops = $self->snippet->tab_stops;
+	return @$stops && $self->{i} < $#{$stops};
 }
 
 sub next {
@@ -65,11 +58,11 @@ sub current_regions {
 
 	my $pos = 0;
 	my @regions;
-	foreach my $c ( $self->snippet->chunks ) {
+	foreach my $c ( @{ $self->snippet->chunks } ) {
 		if ( $self->_is_current( $c ) ){
-			push( @regions, [ $pos, length($c->to_string) ] );
+			push( @regions, [ $pos, length($c->to_string || '') ] );
 		}
-		$pos += length(blessed($c) ? $c->to_string : "$c");
+		$pos += length(blessed($c) ? $c->to_string || '' : "$c");
 	}
 	return @regions;
 }
@@ -80,9 +73,9 @@ sub current_position {
 	my ($x, $y) = (0,0);
 	return [$x,$y] if ! defined $current;
 	
-	foreach my $c($self->snippet->chunks ){
+	foreach my $c(@{ $self->snippet->chunks }){
 		last if($self->_is_current($c));
-		my $text = blessed($c) && $c->can('to_string') ? $c->to_string : "$c";
+		my $text = blessed($c) && $c->can('to_string') ? $c->to_string || '': "$c";
 		foreach my $char(split(/(\n)/,$text)){
 			if($char eq "\n"){
 				$y += length($char);

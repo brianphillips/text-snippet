@@ -2,26 +2,21 @@ package Text::Snippet::TabStop::WithTransformer;
 
 use strict;
 use warnings;
-use Moose;
-use MooseX::Types::Moose qw(CodeRef);
+use base qw(Text::Snippet::TabStop);
+use Carp qw(croak);
+use Class::XSAccessor getters => { transformer => 'transformer' };
 
-with qw(Text::Snippet::TabStop);
-has transformer => (
-	is => 'rw',
-	isa => CodeRef,
-	required => 1,
-);
-around 'to_string' => sub {
-	my $next = shift;
+sub new {
+	my $class = shift;
+	my %args = @_;
+	croak "transformer must be defined and a CodeRef" unless ref($args{transformer}) eq 'CODE';
+	return bless \%args, $class;
+}
+sub to_string {
 	my $self = shift;
-	my $output = $next->($self, @_);
+	my $output = $self->SUPER::to_string;
 	return $self->transformer->($output);
-};
-
-no Moose;
-
-__PACKAGE__->meta->make_immutable;
-
+}
 sub parse {
 	my $class = shift;
 	my $src = shift;

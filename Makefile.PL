@@ -13,9 +13,8 @@ WriteMakefile(
 	PL_FILES  => {},
 	PREREQ_PM => {
 		'Test::More'     => 0,
-		'Moose'          => 0,
 		'Text::Balanced' => 0,
-		'MooseX::Types'  => 0
+		'Class::XSAccessor' => 0,
 	},
 	dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean => { FILES    => 'Text-Snippet-*' },

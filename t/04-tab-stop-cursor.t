@@ -6,7 +6,7 @@ my @tests = map {
 	[ map { chomp; $_ } split( /\n====\n/, $_ ) ]
 } split( /\n--------\n/, join( '', grep {!/^#/} <DATA> ) );
 
-plan(tests => @tests + 16);
+plan(tests => (@tests * 2) + 16);
 use_ok('Text::Snippet::TabStop::Cursor');
 use_ok('Text::Snippet');
 
@@ -14,9 +14,11 @@ foreach my $t(@tests){
 	my $s = Text::Snippet->parse($t->[0]);
 	my $c = $s->cursor;
 	my @values = split(/\|/, $t->[1]);
-	while(@values && $c->has_next){
-		$c->next->replace(shift(@values));
+	while($c->has_next){
+		my $ts = $c->next;
+		$ts->replace(shift(@values)) if(@values);
 	}
+	is($c->is_terminal, 1, 'is_terminal == true on last tab stop');
 	is($s->to_string, $t->[2], "parsed $t->[0] correctly");
 }
 

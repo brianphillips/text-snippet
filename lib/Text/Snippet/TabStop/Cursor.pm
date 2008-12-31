@@ -88,4 +88,10 @@ sub current_position {
 	return [$x,$y];
 }
 
+sub is_terminal {
+	my $self = shift;
+	return if(!defined$self->current);
+	return $self->current->index == 0;
+}
+
 1;

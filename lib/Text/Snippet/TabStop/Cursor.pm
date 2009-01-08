@@ -6,6 +6,40 @@ use Class::XSAccessor getters => {snippet => 'snippet'};
 use Scalar::Util qw(blessed refaddr);
 use Carp qw(croak);
 
+=head1 NAME
+
+Text::Snippet::TabStop::Cursor - Provides a bi-directional iterator interface for moving from one tab-stop to it's siblings
+
+=head1 CLASS METHODS
+
+=head2 new
+
+=head1 INSTANCE METHODS
+
+=over 4
+
+=item * snippet
+
+=item * has_prev
+
+=item * prev
+
+=item * has_next
+
+=item * next
+
+=item * current
+
+=item * current_regions
+
+=item * current_position
+
+=item * is_terminal
+
+=back
+
+=cut
+
 sub new {
 	my $class = shift;
 	my %args = (i => -1, @_);

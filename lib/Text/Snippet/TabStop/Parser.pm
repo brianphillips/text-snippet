@@ -11,6 +11,16 @@ for(@types){
 	croak $@ if $@;
 }
 
+=head1 NAME
+
+Text::Snippet::TabStop::Parser - Parses an individual tab stop
+
+=head1 CLASS METHODS
+
+=head2 parse
+
+=cut
+
 sub parse {
     my $class = shift;
     my $src = shift;

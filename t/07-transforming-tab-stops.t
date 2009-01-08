@@ -44,3 +44,9 @@ love
 I love it, I {l{o{v{e it!
 ====
 bracketed
+--------
+Hello ${1/.+/\U$0/}
+====
+there
+====
+Hello THERE

@@ -50,3 +50,11 @@ Hello ${1/.+/\U$0/}
 there
 ====
 Hello THERE
+--------
+<${1:a}>Text</${1/\s.*//}>
+====
+a href="http://www.google.com"
+====
+<a href="http://www.google.com">Text</a>
+====
+wrap HTML tag

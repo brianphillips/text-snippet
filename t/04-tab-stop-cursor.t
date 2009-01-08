@@ -6,7 +6,7 @@ my @tests = map {
 	[ map { chomp; $_ } split( /\n====\n/, $_ ) ]
 } split( /\n--------\n/, join( '', grep {!/^#/} <DATA> ) );
 
-plan(tests => (@tests * 2) + 16);
+plan(tests => (@tests * 2) + 10);
 use_ok('Text::Snippet::TabStop::Cursor');
 use_ok('Text::Snippet');
 
@@ -22,40 +22,25 @@ foreach my $t(@tests){
 	is($s->to_string, $t->[2], "parsed $t->[0] correctly");
 }
 
-my $s = Text::Snippet->parse('$1 and $2 and $3! Oh my!');
+my $s = Text::Snippet->parse("1. \$1\n2. \$1\$2\n3. \$1\$2\$3");
 my $c = $s->cursor;
-is_deeply( [ $c->current_regions ], [ ], 'nothing currently selected' );
-$c->next;
-is_deeply( [ $c->current_regions ], [ [ 0, 0 ] ], 'no replacement current regions' );
-$c->current->replace('Lions');
-is_deeply( [ $c->current_regions ], [ [ 0, 5 ] ], 'with replacement current regions' );
-$c->next->replace('Tigers');
-is_deeply( [ $c->current_regions ], [ [ 10, 6 ] ], 'second tab stop current region' );
-$c->next->replace('Bears');
-is_deeply( [ $c->current_regions ], [ [ 21, 5 ] ], 'third tab stop current region' );
-$c->prev->replace('Turtles');
-$c->next;
-is_deeply( [ $c->current_regions ], [ [ 22, 5 ] ], 'current regions shift with subsequent edits');
-
-$s = Text::Snippet->parse("1. \$1\n2. \$1\$2\n3. \$1\$2\$3");
-$c = $s->cursor;
 is_deeply($c->current_position, [0,0], 'starts at 0,0');
 $c->next;
-is_deeply($c->current_position, [3,0], 'first tab-stop at 3,0');
+is_deeply($c->current_position, [0,3], 'first tab-stop at 0,3');
 $c->next;
-is_deeply($c->current_position, [3,1], 'second tab-stop at 3,1');
+is_deeply($c->current_position, [1,3], 'second tab-stop at 1,3');
 $c->next;
-is_deeply($c->current_position, [3,2], 'third tab-stop at 3,2');
+is_deeply($c->current_position, [2,3], 'third tab-stop at 2,3');
 $c->prev->replace('Foo');
 $c->next;
-is_deeply($c->current_position, [6,2], 'after modifying $2, third tab-stop at 6,2');
+is_deeply($c->current_position, [2,6], 'after modifying $2, third tab-stop at 2,6');
 $c->prev; $c->prev->replace('Blah');
 $c->next; $c->next;
-is_deeply($c->current_position, [10,2], 'after modifying $1 and $2, third tab-stop at 10,2');
+is_deeply($c->current_position, [2,10], 'after modifying $1 and $2, third tab-stop at 2,10');
 $c->prev;
-is_deeply($c->current_position, [7,1], 'after modifying $1 and $2, second tab-stop at 7,1');
+is_deeply($c->current_position, [1,7], 'after modifying $1 and $2, second tab-stop at 1,7');
 $c->prev;
-is_deeply($c->current_position, [3,0], 'after modifying $1, first tab-stop at 3,0');
+is_deeply($c->current_position, [0,3], 'after modifying $1, first tab-stop at 0,3');
 
 
 __DATA__

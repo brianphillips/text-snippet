@@ -93,7 +93,8 @@ use Class::XSAccessor
 sub to_string {
 	my $self = shift;
 	return $self->parent->to_string if($self->has_parent);
-	return $self->replacement;
+	my $replacement = $self->replacement;
+	return defined($replacement) ? $replacement : '';
 }
 
 1;

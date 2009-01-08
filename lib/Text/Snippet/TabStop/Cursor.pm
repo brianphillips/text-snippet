@@ -20,21 +20,47 @@ Text::Snippet::TabStop::Cursor - Provides a bi-directional iterator interface fo
 
 =item * snippet
 
+Maintains a reference to the snippet that this cursor is iterating over.
+
 =item * has_prev
+
+Returns true/false depending on whether the cursor can move to a previous
+tab stop.
 
 =item * prev
 
+Moves the cursor to the previous tab stop and returns that tab stop.
+You can only iterate one element off the end of the underlying set of
+tab stops.
+
 =item * has_next
+
+Returns true/false depending on whether the cursor can move to a
+subsequent tab stop.
 
 =item * next
 
+Moves the cursor to the next tab stop and returns that tab stop.  You can
+only iterate one element off the end of the underlying set of tab stops.
+
 =item * current
 
-=item * current_regions
+Returns the tab stop the cursor is currently pointing at.  When the cursor
+is first created, this method will always return C<undef> until C<next>
+has been called at least once.
 
 =item * current_position
 
+Returns an ArrayRef reflecting the line/column position relative to
+the beginning of the snippet.  Both numbers are zero-based so a tab
+stop starting on the first line, first character would return a value
+of C<[0,0]>.
+
 =item * is_terminal
+
+Returns true if this tab stop is a "terminal" tab stop (i.e. once the
+user iterates to this tab stop, the iterator should be restored and
+normal editing should resume).
 
 =back
 
@@ -86,40 +112,25 @@ sub _is_current {
 	return blessed($tab_stop) && (refaddr($tab_stop) == refaddr($current) || ($tab_stop->has_parent && refaddr($tab_stop->parent) == refaddr($current)));
 }
 
-sub current_regions {
-	my $self    = shift;
-	return if ( !defined $self->current );
-
-	my $pos = 0;
-	my @regions;
-	foreach my $c ( @{ $self->snippet->chunks } ) {
-		if ( $self->_is_current( $c ) ){
-			push( @regions, [ $pos, length($c->to_string || '') ] );
-		}
-		$pos += length(blessed($c) ? $c->to_string || '' : "$c");
-	}
-	return @regions;
-}
-
 sub current_position {
 	my $self = shift;
 	my $current = $self->current;
-	my ($x, $y) = (0,0);
-	return [$x,$y] if ! defined $current;
+	my ($line, $column) = (0,0);
+	return [$line,$column] if ! defined $current;
 	
 	foreach my $c(@{ $self->snippet->chunks }){
 		last if($self->_is_current($c));
 		my $text = blessed($c) && $c->can('to_string') ? $c->to_string || '': "$c";
 		foreach my $char(split(/(\n)/,$text)){
 			if($char eq "\n"){
-				$y += length($char);
-				$x = 0;
+				$line++;
+				$column = 0;
 			} else {
-				$x += length($char);
+				$column += length($char);
 			}
 		}
 	}
-	return [$x,$y];
+	return [$line,$column];
 }
 
 sub is_terminal {

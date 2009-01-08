@@ -31,6 +31,35 @@ snippets provided by TextMate.
 
     my $snippet = Text::Snippet->parse($snippet_content);
 
+	my @tabstops = $snippet->tab_stops;
+	foreach my $t (@tabstops) {
+		my $replacement = get_user_input();    # get user input somehow
+		$t->replace($replacement) if ($user_input);
+	}
+	print $snippet;                           # stringify and write to STDOUT
+	
+	# alternate "cursor" interface
+
+	my $cursor = $snippet->cursor;
+	while ( my $direction = get_user_tab_direction() ) {    # forward or backward
+		my $t;
+		if ( $direction == 1 ) {          # tab
+			$t = $cursor->next;
+		} elsif ( $direction == -1 ) {    # shift-tab
+			$t = $cursor->prev;
+		} else {
+			last;                         # bail
+		}
+		next if ( !$t );
+
+		# get (zero-based) cursor position relative to the beginning of the snippet
+		my($line, $column) = $cursor->current_position;
+
+		my $replacement = get_user_input();
+		$t->replace($replacement);
+	}
+	print $snippet; # stringify snippet and write to STDOUT
+
 =head1 SUPPORTED SNIPPET SYNTAX
 
 =over 4
@@ -106,6 +135,16 @@ If the user leaves all the defaults, the output of this snippet would be:
 		reader => 'getPropertyName',
 		writer => 'setPropertyName'
 	);
+
+Another example would be a helper snippet for creating simple HTML tags:
+
+	<${1:a}>${2}</${1/\s.*//}>
+
+The transformer on the mirrored tab stop essentially will truncate
+anything starting with the first whitespace character entered by the
+user.  If the user enters C<a href="http://search.cpan.org"> as the 
+first replacement value, the mirrored tab stop will have a replacement
+of just C<a>.
 
 =back
 
@@ -190,11 +229,11 @@ including it inside double quotes will have the same effect.
 
 =cut
 
-use overload '""' => \&to_string;
+use overload '""' => sub { shift->to_string };
 
 sub to_string {
 	my $self = shift;
-	return join( '', map { blessed($_) && $_->can('to_string') ? $_->to_string || '' : $_ } @{ $self->chunks } );
+	return join( '', @{ $self->chunks } ) || '';
 }
 
 use Class::XSAccessor getters => { src => 'src', tab_stops => 'tab_stops', chunks => 'chunks' };

@@ -1,5 +1,7 @@
 Revision history for Text-Snippet
 
+0.03    2009-02-17
+        Added character position (in addition to line/column position) to the cursor interface
 0.02    2009-01-08
         Fixed the MANIFEST
 0.01    2009-01-08

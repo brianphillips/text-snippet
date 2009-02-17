@@ -56,6 +56,12 @@ the beginning of the snippet.  Both numbers are zero-based so a tab
 stop starting on the first line, first character would return a value
 of C<[0,0]>.
 
+=item * current_char_position
+
+Returns an integer reflecting the current cursor position where 0 is the 
+first character of the snippet and each character is counted up until
+the current position of the cursor.
+
 =item * is_terminal
 
 Returns true if this tab stop is a "terminal" tab stop (i.e. once the

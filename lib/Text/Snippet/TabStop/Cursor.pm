@@ -133,6 +133,19 @@ sub current_position {
 	return [$line,$column];
 }
 
+sub current_char_position {
+	my $self = shift;
+	my $pos = 0;
+	my $current = $self->current;
+	return $pos if ! defined $current;
+	foreach my $c( @{ $self->snippet->chunks } ){
+		last if($self->_is_current($c));
+		my $text = blessed($c) && $c->can('to_string') ? $c->to_string || '': "$c";
+		$pos += length($text);
+	}
+	return $pos;
+}
+
 sub is_terminal {
 	my $self = shift;
 	return if(!defined$self->current);

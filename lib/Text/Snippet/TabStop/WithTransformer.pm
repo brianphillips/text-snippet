@@ -77,6 +77,7 @@ sub parse {
 			my $out = shift;
 			if ( $out =~ m/$search/ ) {
 				eval "\$out =~ s{\$search}{$replace}g";
+				die $@ if($@);
 			}
 			return $out;
 		};

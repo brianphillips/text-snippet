@@ -1,7 +1,6 @@
 Changes
 lib/Text/Snippet.pm
 lib/Text/Snippet/TabStop.pm
-lib/Text/Snippet/TabStop/.Parser.pm.swp
 lib/Text/Snippet/TabStop/Basic.pm
 lib/Text/Snippet/TabStop/Cursor.pm
 lib/Text/Snippet/TabStop/Parser.pm

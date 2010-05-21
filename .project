@@ -1,0 +1,30 @@
+Project=/home/bphillips/git/Text-Snippet CD=. {
+ Changes
+ dist.ini
+ lib=lib {
+  Text=Text {
+   Snippet.pm
+   Snippet=Snippet {
+    TabStop.pm
+    TabStop=TabStop {
+     Basic.pm
+     Cursor.pm
+     Parser.pm
+     WithDefault.pm
+     WithTransformer.pm
+    }
+   }
+  }
+ }
+ t=t {
+  00-load.t
+  01-basic.t
+  02-single-tab-stop.t
+  03-multiple-tab-stops.t
+  04-tab-stop-cursor.t
+  05-with-defaults.t
+  06-mirrored-tab-stops.t
+  07-transforming-tab-stops.t
+  08-tab-stop-failures.t
+ }
+}

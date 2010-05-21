@@ -1,14 +1,12 @@
 package Text::Snippet::TabStop::WithTransformer;
 
+# ABSTRACT: Tab stop that modifies the replacement value supplied by the user
+
 use strict;
 use warnings;
 use base qw(Text::Snippet::TabStop);
 use Carp qw(croak);
 use Class::XSAccessor getters => { transformer => 'transformer' };
-
-=head1 NAME
-
-Text::Snippet::TabStop::WithTransformer - Tab stop that modifies the replacement value supplied by the user
 
 =head1 EXAMPLE SYNTAX
 

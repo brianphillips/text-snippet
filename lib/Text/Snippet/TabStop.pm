@@ -1,13 +1,11 @@
 package Text::Snippet::TabStop;
 
+# ABSTRACT: Abstract class for other tab stop classes
+
 use strict;
 use warnings;
 use Carp qw(croak);
 use overload '""' => sub { shift->to_string };
-
-=head1 NAME
-
-Text::Snippet::TabStop - Abstract class for other tab stop classes
 
 =head1 SYNOPSIS
 

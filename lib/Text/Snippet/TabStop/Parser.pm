@@ -1,19 +1,20 @@
 package Text::Snippet::TabStop::Parser;
 
+# ABSTRACT: Parses an individual tab stop
+
 use strict;
 use warnings;
 use List::Util qw(first);
 use Carp qw(croak);
 
-my @types = map { "Text::Snippet::TabStop::$_" } qw( Basic WithDefault WithTransformer );
-for(@types){
-	eval "require $_";
-	croak $@ if $@;
+my @types;
+BEGIN {
+	@types = map { "Text::Snippet::TabStop::$_" } qw( Basic WithDefault WithTransformer );
+	for(@types){
+		eval "require $_";
+		croak $@ if $@;
+	}
 }
-
-=head1 NAME
-
-Text::Snippet::TabStop::Parser - Parses an individual tab stop
 
 =head1 CLASS METHODS
 

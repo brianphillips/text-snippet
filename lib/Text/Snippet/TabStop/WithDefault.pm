@@ -1,14 +1,12 @@
 package Text::Snippet::TabStop::WithDefault;
 
+# ABSTRACT: Tab stop that specifies a default value for the user
+
 use strict;
 use warnings;
 use base qw(Text::Snippet::TabStop);
 use Carp qw(croak);
 use Class::XSAccessor getters => { default => 'default' };
-
-=head1 NAME
-
-Text::Snippet::TabStop::WithDefault - Tab stop that specifies a default value for the user
 
 =head1 EXAMPLE SYNTAX
 

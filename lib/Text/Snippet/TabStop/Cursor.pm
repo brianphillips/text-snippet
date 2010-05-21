@@ -1,14 +1,12 @@
 package Text::Snippet::TabStop::Cursor;
 
+# ABSTRACT: Provides a bi-directional iterator interface for moving from one tab-stop to it's siblings
+
 use strict;
 use warnings;
 use Class::XSAccessor getters => {snippet => 'snippet'};
 use Scalar::Util qw(blessed refaddr);
 use Carp qw(croak);
-
-=head1 NAME
-
-Text::Snippet::TabStop::Cursor - Provides a bi-directional iterator interface for moving from one tab-stop to it's siblings
 
 =head1 CLASS METHODS
 

@@ -1,5 +1,7 @@
 package Text::Snippet;
 
+# ABSTRACT: TextMate-like snippet functionality
+
 use warnings;
 use strict;
 use Text::Balanced qw(extract_bracketed extract_multiple);
@@ -7,19 +9,6 @@ use Text::Snippet::TabStop::Parser;
 use Text::Snippet::TabStop::Cursor;
 use Scalar::Util qw(blessed);
 use Carp qw(croak);
-
-=head1 NAME
-
-Text::Snippet - TextMate-like snippet functionality
-
-=head1 VERSION
-
-Version 0.03
-
-=cut
-
-our $VERSION = '0.03';
-
 
 =head1 SYNOPSIS
 
@@ -229,7 +218,7 @@ including it inside double quotes will have the same effect.
 
 =cut
 
-use overload '""' => sub { shift->to_string };
+use overload '""' => sub { shift->to_string }, fallback => 1;
 
 sub to_string {
 	my $self = shift;
@@ -269,10 +258,6 @@ sub cursor {
 	return Text::Snippet::TabStop::Cursor->new( snippet => $self );
 }
 
-=head1 AUTHOR
-
-Brian Phillips, C<< <bphillips at cpan.org> >>
-
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-text-snippet at rt.cpan.org>, or through
@@ -285,7 +270,6 @@ automatically be notified of progress on your bug as I make changes.
 You can find documentation for this module with the perldoc command.
 
     perldoc Text::Snippet
-
 
 You can also look for information at:
 
@@ -309,17 +293,6 @@ L<http://search.cpan.org/dist/Text-Snippet/>
 
 =back
 
-=head1 ACKNOWLEDGEMENTS
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2008 Brian Phillips.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-
 =cut
 
-1; # End of Text::Snippet
-
+1;

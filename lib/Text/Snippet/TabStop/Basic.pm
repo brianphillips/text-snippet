@@ -1,13 +1,11 @@
 package Text::Snippet::TabStop::Basic;
 
+# ABSTRACT: Basic TabStop
+
 use strict;
 use warnings;
 
 use base qw(Text::Snippet::TabStop);
-
-=head1 NAME
-
-Text::Snippet::TabStop::Basic - Basic TabStop
 
 =head1 SYNOPSIS
 
